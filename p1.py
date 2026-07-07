@@ -79,7 +79,7 @@ if 'logged_in' not in st.session_state:
 if 'history' not in st.session_state:
     st.session_state.history = [] 
 
-USER_REGISTRY = {"sayam": "123", "judge": "win101", "tcet": "aimlb" , "test":"123'}
+USER_REGISTRY = {"sayam": "123", "judge": "win101", "tcet": "aimlb" , "test": "123"}
 
 # --- 4. LOGIN ---
 if not st.session_state.logged_in:
