@@ -99,6 +99,7 @@ if not st.session_state.logged_in:
     st.stop()
 
 # --- 5. DATA LOGIC ---
+# --- 5. DATA LOGIC ---
 DATA_FILE = f"data_{st.session_state.user}.csv"
 # Added 'Timestamp' to the required layout columns
 REQUIRED_COLUMNS = ['Timestamp', 'Type', 'Item', 'Amount', 'Category']
@@ -109,13 +110,17 @@ def save_data(df):
 if 'expenses' not in st.session_state:
     if os.path.exists(DATA_FILE):
         df = pd.read_csv(DATA_FILE)
-        st.session_state.expenses = df if 'Type' in df.columns else pd.DataFrame(columns=REQUIRED_COLUMNS)
+        
+        # Check if the file matches our layout or is empty/corrupted
+        if 'Type' in df.columns:
+            # FIX: If it's an old CSV file missing the Timestamp column, add it automatically
+            if 'Timestamp' not in df.columns:
+                df.insert(0, 'Timestamp', 'Prior Entry')
+            st.session_state.expenses = df
+        else:
+            st.session_state.expenses = pd.DataFrame(columns=REQUIRED_COLUMNS)
     else:
         st.session_state.expenses = pd.DataFrame(columns=REQUIRED_COLUMNS)
-
-if 'budget' not in st.session_state: st.session_state.budget = 5000.0
-if 'income' not in st.session_state: st.session_state.income = 0.0
-
 # --- 6. HEADER & METRICS ---
 st.markdown(f"<h2 style='text-align: center;'>👋 Hello, {st.session_state.user.capitalize()}</h2>", unsafe_allow_html=True)
 
