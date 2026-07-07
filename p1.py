@@ -122,12 +122,15 @@ if 'expenses' not in st.session_state:
     else:
         st.session_state.expenses = pd.DataFrame(columns=REQUIRED_COLUMNS)
 # --- 6. HEADER & METRICS ---
-st.markdown(f"<h2 style='text-align: center;'>👋 Hello, {st.session_state.user.capitalize()}</h2>", unsafe_allow_html=True)
-
 with st.expander("⚙️ Configuration"):
     c1, c2 = st.columns(2)
-    st.session_state.budget = c1.number_input("Monthly Budget", value=st.session_state.budget)
-    st.session_state.income = c2.number_input("Base Daily Income", value=st.session_state.income)
+    # Read into temporary local variables first to prevent state corruption
+    new_budget = c1.number_input("Monthly Budget", value=float(st.session_state.budget), step=1.0)
+    new_income = c2.number_input("Base Daily Income", value=float(st.session_state.income), step=1.0)
+    
+    # Update the actual session state variables safely
+    st.session_state.budget = new_budget
+    st.session_state.income = new_income
 
 # Math
 total_exp = st.session_state.expenses[st.session_state.expenses['Type'] == 'Expense']['Amount'].sum()
