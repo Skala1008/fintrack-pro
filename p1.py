@@ -61,12 +61,11 @@ st.markdown("""
     }
 
     /* Full-width buttons for Mobile touch */
-    button {
+    button:not([class*="stPasswordVisibilityToggle"]) {
         width: 100% !important;
         border-radius: 10px !important;
         height: 3em !important;
     }
-
     /* Remove extra padding on mobile */
     .block-container { padding: 1rem 1rem !important; }
     </style>
