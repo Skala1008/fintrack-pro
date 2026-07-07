@@ -60,8 +60,8 @@ st.markdown("""
         justify-content: center !important; 
     }
 
-    /* Full-width buttons for Mobile touch */
-    button:not([class*="stPasswordVisibilityToggle"]) {
+   /* Full-width buttons for Mobile touch (excluding password toggle overlays) */
+    button[data-testid="stBaseButton-secondary"] {
         width: 100% !important;
         border-radius: 10px !important;
         height: 3em !important;
