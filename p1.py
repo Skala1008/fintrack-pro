@@ -169,7 +169,7 @@ with mid:
             if st.form_submit_button("Confirm Entry"):
                 if item and amt >= 0.01:
                     st.session_state.history.append(st.session_state.expenses.copy())
-                    st.session_state.redo_history.clear() # Clear redo stack on new action
+                    st.session_state.redo_history.clear()
                     now_ts = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     new_row = pd.DataFrame([[now_ts, e_type, item, amt, cat]], columns=REQUIRED_COLUMNS)
                     st.session_state.expenses = pd.concat([st.session_state.expenses, new_row], ignore_index=True)
@@ -178,26 +178,28 @@ with mid:
 
 # --- 8. TABLE & ACTIONS ---
 st.markdown("### 📜 Recent Activity")
-st.caption("💡 Double-click any text cell to edit its value directly. To delete rows, select them using the checkboxes on the left and hit the 🗑️ icon or press Delete on your keyboard.")
+st.caption("💡 Double-click any cell to edit its contents directly.")
 
 # Interactive Data Editor mapping
 edited_df = st.data_editor(
     st.session_state.expenses,
     use_container_width=True,
-    num_rows="dynamic",
+    num_rows="fixed",            # Fix 1: Disables adding rows from inside the table
     hide_index=True,
+    selection_mode="none",        # Fix 2: Removes the unattractive selection column
     column_config={
-        "Timestamp": st.column_config.TextColumn("Timestamp", disabled=True),
-        "Type": st.column_config.SelectboxColumn("Type", options=["Expense", "Gain"], required=True),
-        "Category": st.column_config.SelectboxColumn("Category", options=CATEGORY_OPTIONS, required=True),
-        "Amount": st.column_config.NumberColumn("Amount (₹)", min_value=0.01, format="%.2f", required=True)
+        "Timestamp": st.column_config.TextColumn("Timestamp", disabled=True, width="medium"),
+        "Type": st.column_config.SelectboxColumn("Type", options=["Expense", "Gain"], required=True, width="small"),
+        "Item": st.column_config.TextColumn("Item", required=True, width="medium"),
+        "Category": st.column_config.SelectboxColumn("Category", options=CATEGORY_OPTIONS, required=True, width="medium"),
+        "Amount": st.column_config.NumberColumn("Amount (₹)", min_value=0.01, format="%.2f", required=True, width="small")
     }
 )
 
 # Track inline table modifications seamlessly
 if not edited_df.equals(st.session_state.expenses):
     st.session_state.history.append(st.session_state.expenses.copy())
-    st.session_state.redo_history.clear() # Clear redo stack on cell edit
+    st.session_state.redo_history.clear()
     st.session_state.expenses = edited_df.reset_index(drop=True)
     save_data(st.session_state.expenses)
     st.rerun()
