@@ -85,7 +85,7 @@ if 'budget' not in st.session_state:
 if 'income' not in st.session_state: 
     st.session_state.income = 0.0
 
-USER_REGISTRY = {"sayam": "123", "judge": "win101", "tcet": "aimlb" , "test": "123"}x    
+USER_REGISTRY = {"sayam": "123", "judge": "win101", "tcet": "aimlb" , "test": "123"}    
 # --- 4. LOGIN ---
 if not st.session_state.logged_in:
     _, col, _ = st.columns([1, 2, 1])
