@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import os
+import datetime
 import streamlit.components.v1 as components
 
 # --- 1. PAGE CONFIG ---
@@ -60,12 +61,13 @@ st.markdown("""
         justify-content: center !important; 
     }
 
-   /* Full-width buttons for Mobile touch (excluding password toggle overlays) */
+    /* Full-width buttons for Mobile touch (excluding password toggle overlays) */
     button[data-testid="stBaseButton-secondary"] {
         width: 100% !important;
         border-radius: 10px !important;
         height: 3em !important;
     }
+
     /* Remove extra padding on mobile */
     .block-container { padding: 1rem 1rem !important; }
     </style>
@@ -98,7 +100,8 @@ if not st.session_state.logged_in:
 
 # --- 5. DATA LOGIC ---
 DATA_FILE = f"data_{st.session_state.user}.csv"
-REQUIRED_COLUMNS = ['Type', 'Item', 'Amount', 'Category']
+# Added 'Timestamp' to the required layout columns
+REQUIRED_COLUMNS = ['Timestamp', 'Type', 'Item', 'Amount', 'Category']
 
 def save_data(df):
     df.to_csv(DATA_FILE, index=False)
@@ -134,27 +137,31 @@ m3.metric("Earnings", f"₹{total_gain:,.2f}")
 st.divider()
 
 # --- 7. MODERN ENTRY FORM ---
-_, mid, _ = st.columns([1, 4, 1]) # Wider for mobile but centered for desktop
+_, mid, _ = st.columns([1, 4, 1]) 
 with mid:
     with st.container():
         st.markdown("### 📝 New Entry")
         with st.form("modern_form", clear_on_submit=True):
             e_type = st.radio("Type", ["Expense", "Gain"], horizontal=True)
             item = st.text_input("What is this for?")
-            # Updated: min_value=1.0 as requested
-            amt = st.number_input("Amount (₹)", min_value=1.0, step=1.0, format="%.2f")
+            # Changed: Min value set to 0.01 (1 Paisa) and adjustments jump by 1.00 (1 Rupee)
+            amt = st.number_input("Amount (₹)", min_value=0.01, step=1.00, format="%.2f")
             cat = st.selectbox("Category", ["Food", "Travel", "Fees", "Incentive", "Misc"])
             
             if st.form_submit_button("Confirm Entry"):
-                if item and amt >= 1:
+                if item and amt >= 0.01:
                     st.session_state.history.append(st.session_state.expenses.copy())
-                    new_row = pd.DataFrame([[e_type, item, amt, cat]], columns=REQUIRED_COLUMNS)
+                    # Generate exact date and time formatting
+                    now_ts = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    new_row = pd.DataFrame([[now_ts, e_type, item, amt, cat]], columns=REQUIRED_COLUMNS)
                     st.session_state.expenses = pd.concat([st.session_state.expenses, new_row], ignore_index=True)
                     save_data(st.session_state.expenses)
                     st.rerun()
 
 # --- 8. TABLE & ACTIONS ---
 st.markdown("### 📜 Recent Activity")
+st.dataframe(st.session_state.expenses, use_container_width=True, hide_index=True)
+
 col_undo, col_del = st.columns(2)
 if col_undo.button("↩️ Undo"):
     if st.session_state.history:
@@ -169,7 +176,25 @@ if col_del.button("🗑️ Clear Last"):
         save_data(st.session_state.expenses)
         st.rerun()
 
-st.dataframe(st.session_state.expenses, use_container_width=True, hide_index=True)
+# Row Deletion Tool Component
+if not st.session_state.expenses.empty:
+    with st.expander("🎯 Delete a Particular Entry"):
+        # Format list choices cleanly for user visibility selection
+        options = [
+            f"Row {idx+1}: [{row['Timestamp']}] {row['Type']} - {row['Item']} (₹{row['Amount']})" 
+            for idx, row in st.session_state.expenses.iterrows()
+        ]
+        selected_option = st.selectbox("Select entry to permanently drop:", options)
+        selected_index = options.index(selected_option)
+        
+        if st.button("Delete Selected Row"):
+            st.session_state.history.append(st.session_state.expenses.copy())
+            st.session_state.expenses = st.session_state.expenses.drop(selected_index).reset_index(drop=True)
+            save_data(st.session_state.expenses)
+            st.success("Entry removed successfully!")
+            st.rerun()
+
+st.divider()
 
 if st.button("Logout"):
     st.session_state.logged_in = False
