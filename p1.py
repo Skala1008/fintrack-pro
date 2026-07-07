@@ -74,14 +74,18 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 # --- 3. SESSION STATE ---
+# --- 3. SESSION STATE ---
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
     st.session_state.user = ""
 if 'history' not in st.session_state:
     st.session_state.history = [] 
+if 'budget' not in st.session_state: 
+    st.session_state.budget = 5000.0
+if 'income' not in st.session_state: 
+    st.session_state.income = 0.0
 
-USER_REGISTRY = {"sayam": "123", "judge": "win101", "tcet": "aimlb" , "test": "123"}
-
+USER_REGISTRY = {"sayam": "123", "judge": "win101", "tcet": "aimlb" , "test": "123"}x    
 # --- 4. LOGIN ---
 if not st.session_state.logged_in:
     _, col, _ = st.columns([1, 2, 1])
