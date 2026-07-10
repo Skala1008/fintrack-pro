@@ -32,7 +32,7 @@ st.markdown("""
     <style>
     /* Google Font Import */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
-    
+
     html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
 
     /* Modern Card Styling */
@@ -53,12 +53,12 @@ st.markdown("""
     }
 
     /* Force Table Centering */
-    [data-testid="stDataFrame"] div[role="gridcell"] > div { 
-        justify-content: center !important; 
-        text-align: center !important; 
+    [data-testid="stDataFrame"] div[role="gridcell"] > div {
+        justify-content: center !important;
+        text-align: center !important;
     }
-    [data-testid="stDataFrame"] div[role="columnheader"] > div { 
-        justify-content: center !important; 
+    [data-testid="stDataFrame"] div[role="columnheader"] > div {
+        justify-content: center !important;
     }
 
     /* Full-width buttons for Mobile touch (excluding password toggle overlays) */
@@ -78,17 +78,17 @@ if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
     st.session_state.user = ""
 if 'history' not in st.session_state:
-    st.session_state.history = [] 
+    st.session_state.history = []
 if 'redo_history' not in st.session_state:
-    st.session_state.redo_history = [] 
-if 'budget' not in st.session_state: 
+    st.session_state.redo_history = []
+if 'budget' not in st.session_state:
     st.session_state.budget = 5000.0
-if 'income' not in st.session_state: 
+if 'income' not in st.session_state:
     st.session_state.income = 0.0
 if 'use_income' not in st.session_state:
     st.session_state.use_income = False
 
-USER_REGISTRY = {"sayam": "123", "judge": "win101", "tcet": "aimlb" , "test": "123"}
+USER_REGISTRY = {"sayam": "123", "judge": "win101", "tcet": "aimlb", "test": "123"}
 
 # --- 4. LOGIN ---
 if not st.session_state.logged_in:
@@ -111,8 +111,10 @@ DATA_FILE = f"data_{st.session_state.user}.csv"
 REQUIRED_COLUMNS = ['Timestamp', 'Type', 'Item', 'Amount', 'Category']
 CATEGORY_OPTIONS = ["Food", "Travel", "Fees", "Incentive", "Entertainment", "Health", "Investment", "Shopping", "Utilities", "Misc"]
 
+
 def save_data(df):
     df.to_csv(DATA_FILE, index=False)
+
 
 if 'expenses' not in st.session_state:
     if os.path.exists(DATA_FILE):
@@ -132,15 +134,15 @@ st.markdown(f"<h2 style='text-align: center;'>👋 Hello, {st.session_state.user
 with st.expander("⚙️ Configuration"):
     c1, c2, c3 = st.columns([2, 1, 2])
     new_budget = c1.number_input("Monthly Budget", value=float(st.session_state.budget), step=1.0)
-    
+
     st.session_state.use_income = c2.checkbox("Enable Daily Income", value=st.session_state.use_income)
-    
+
     if st.session_state.use_income:
         new_income = c3.number_input("Base Daily Income", value=float(st.session_state.income), step=1.0)
         st.session_state.income = new_income
     else:
         st.session_state.income = 0.0
-        
+
     st.session_state.budget = new_budget
 
 # Calculations
@@ -156,7 +158,7 @@ m3.metric("Earnings", f"₹{total_gain:,.2f}")
 st.divider()
 
 # --- 7. MODERN ENTRY FORM ---
-_, mid, _ = st.columns([1, 4, 1]) 
+_, mid, _ = st.columns([1, 4, 1])
 with mid:
     with st.container():
         st.markdown("### 📝 New Entry")
@@ -165,7 +167,7 @@ with mid:
             item = st.text_input("What is this for?")
             amt = st.number_input("Amount (₹)", min_value=0.01, step=1.00, format="%.2f")
             cat = st.selectbox("Category", CATEGORY_OPTIONS)
-            
+
             if st.form_submit_button("Confirm Entry"):
                 if item and amt >= 0.01:
                     st.session_state.history.append(st.session_state.expenses.copy())
@@ -181,12 +183,14 @@ st.markdown("### 📜 Recent Activity")
 st.caption("💡 Double-click any cell to edit its contents directly.")
 
 # Interactive Data Editor mapping
+# NOTE: "selection_mode" is not a valid argument for st.data_editor
+# (it only exists for st.dataframe, and only alongside on_select).
+# Passing it here caused: TypeError on the metrics_util wrapped_func.
 edited_df = st.data_editor(
     st.session_state.expenses,
     use_container_width=True,
-    num_rows="fixed",            # Fix 1: Disables adding rows from inside the table
+    num_rows="fixed",            # Disables adding rows from inside the table
     hide_index=True,
-    selection_mode="none",        # Fix 2: Removes the unattractive selection column
     column_config={
         "Timestamp": st.column_config.TextColumn("Timestamp", disabled=True, width="medium"),
         "Type": st.column_config.SelectboxColumn("Type", options=["Expense", "Gain"], required=True, width="small"),
