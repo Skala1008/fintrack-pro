@@ -133,7 +133,7 @@ st.markdown(f"<h2 style='text-align: center;'>👋 Hello, {st.session_state.user
 
 with st.expander("⚙️ Configuration"):
     c1, c2, c3 = st.columns([2, 1, 2])
-    new_budget = c1.number_input("Monthly Budget", value=float(st.session_state.budget), step=1.0)
+    new_budget = c1.number_input("Monthly Budget", value=float(st.session_state.budget), step=10.0)
 
     st.session_state.use_income = c2.checkbox("Enable Daily Income", value=st.session_state.use_income)
 
@@ -165,7 +165,7 @@ with mid:
         with st.form("modern_form", clear_on_submit=True):
             e_type = st.radio("Type", ["Expense", "Gain"], horizontal=True)
             item = st.text_input("What is this for?")
-            amt = st.number_input("Amount (₹)", min_value=0.01, step=1.00, format="%.2f")
+            amt = st.number_input("Amount (₹)", min_value=0.01, step=10.00, format="%.2f")
             cat = st.selectbox("Category", CATEGORY_OPTIONS)
 
             if st.form_submit_button("Confirm Entry"):
