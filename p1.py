@@ -138,7 +138,7 @@ with st.expander("⚙️ Configuration"):
     st.session_state.use_income = c2.checkbox("Enable Daily Income", value=st.session_state.use_income)
 
     if st.session_state.use_income:
-        new_income = c3.number_input("Base Daily Income", value=float(st.session_state.income), step=1.0)
+        new_income = c3.number_input("Base Daily Income", value=float(st.session_state.income), step=10.0)
         st.session_state.income = new_income
     else:
         st.session_state.income = 0.0
